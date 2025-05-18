@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Scratch Reveal</title>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+    #canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      display: block;
+      cursor: crosshair;
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="canvas"></canvas>
+
+<script>
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+
+  let width = canvas.width = window.innerWidth;
+  let height = canvas.height = window.innerHeight;
+
+  let isDrawing = false;
+
+  // Load hidden content (underneath)
+  const hiddenImage = new Image();
+  hiddenImage.src = 'https://github.com/fooliosfoo/FogOfWarMap/blob/main/7l02dz14wn7a1_Mini.jpg?raw=true'; // Replace with your hidden content
+  hiddenImage.onload = () => {
+    ctx.drawImage(hiddenImage, 0, 0, width, height);
+    drawCover(); // Draw gray scratch-off layer on top
+  };
+
+  // Draw the top "scratchable" layer
+  function drawCover() {
+    ctx.fillStyle = '#888'; // Could use an image or pattern too
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.fillRect(0, 0, width, height);
+  }
+
+  // Scratch to reveal
+  function scratch(x, y) {
+    ctx.globalCompositeOperation = 'destination-out'; // Erases from top layer
+    ctx.beginPath();
+    ctx.arc(x, y, 30, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  canvas.addEventListener('mousedown', (e) => {
+    isDrawing = true;
+    scratch(e.clientX, e.clientY);
+  });
+
+  canvas.addEventListener('mousemove', (e) => {
+    if (isDrawing) {
+      scratch(e.clientX, e.clientY);
+    }
+  });
+
+  canvas.addEventListener('mouseup', () => {
+    isDrawing = false;
+  });
+
+  canvas.addEventListener('mouseleave', () => {
+    isDrawing = false;
+  });
+
+  window.addEventListener('resize', () => {
+    width = canvas.width = window.innerWidth;
+    height = canvas.height = window.innerHeight;
+    ctx.drawImage(hiddenImage, 0, 0, width, height);
+    drawCover();
+  });
+</script>
+
+</body>
+</html>
