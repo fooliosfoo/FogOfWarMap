@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Scratch Reveal with Image Texture</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    #canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      cursor: crosshair;
+      z-index: 1;
+    }
+
+    .controls {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .controls button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: rgba(255, 255, 255, 0.8);
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .controls button:hover {
+      background-color: rgba(255, 255, 255, 1);
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="canvas"></canvas>
+<div class="controls">
+  <button id="clearBtn">Clear All</button>
+  <button id="resetBtn">Reset Cover</button>
+</div>
+
+<script>
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+  const clearBtn = document.getElementById('clearBtn');
+  const resetBtn = document.getElementById('resetBtn');
+
+  let width = canvas.width = window.innerWidth;
+  let height = canvas.height = window.innerHeight;
+  let isDrawing = false;
+
+  const hiddenImage = new Image();
+  hiddenImage.src = 'https://github.com/fooliosfoo/FogOfWarMap/blob/main/7l02dz14wn7a1_Mini.jpg?raw=true'; // Content under the scratch layer
+
+  const coverTexture = new Image();
+  coverTexture.src = 'https://github.com/fooliosfoo/FogOfWarMap/blob/main/UYwDpmvqTetMKn7e1RCEcB_mini.jpg?raw=true'; // Replace with your cover image texture
+
+  hiddenImage.onload = () => {
+    coverTexture.onload = () => {
+      drawCover();
+    };
+  };
+
+  function drawCover() {
+    // Draw content image first
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.drawImage(hiddenImage, 0, 0, width, height);
+
+    // Draw the textured cover image over the entire canvas
+    ctx.drawImage(coverTexture, 0, 0, width, height);
+  }
+
+  function scratch(x, y) {
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.beginPath();
+    ctx.arc(x, y, 30, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  canvas.addEventListener('mousedown', (e) => {
+    isDrawing = true;
+    scratch(e.clientX, e.clientY);
+  });
+
+  canvas.addEventListener('mousemove', (e) => {
+    if (isDrawing) {
+      scratch(e.clientX, e.clientY);
+    }
+  });
+
+  canvas.addEventListener('mouseup', () => {
+    isDrawing = false;
+  });
+
+  canvas.addEventListener('mouseleave', () => {
+    isDrawing = false;
+  });
+
+  clearBtn.addEventListener('click', () => {
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.fillRect(0, 0, width, height);
+  });
+
+  resetBtn.addEventListener('click', () => {
+    drawCover();
+  });
+
+  window.addEventListener('resize', () => {
+    width = canvas.width = window.innerWidth;
+    height = canvas.height = window.innerHeight;
+    drawCover();
+  });
+</script>
+
+</body>
+</html>
