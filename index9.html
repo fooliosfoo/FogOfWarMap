@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Scratch Reveal with Multiple Tools</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    #canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 1;
+    }
+
+    .tool {
+      position: absolute;
+      width: 40px;
+      height: 40px;
+      z-index: 3;
+      cursor: grab;
+    }
+
+    .tool.dragging {
+      cursor: grabbing;
+    }
+
+    .controls {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .controls button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: rgba(255, 255, 255, 0.8);
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .controls button:hover {
+      background-color: rgba(255, 255, 255, 1);
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="canvas"></canvas>
+
+<!-- Tool Images -->
+<img class="tool" id="tool1" src="https://i.imgur.com/1bX5QH6.png" alt="Tool 1" style="left: 100px; top: 100px;">
+<img class="tool" id="tool2" src="https://i.imgur.com/jP9aR7J.png" alt="Tool 2" style="left: 180px; top: 100px;"> <!-- Replace with any other icon -->
+
+<div class="controls">
+  <button id="clearBtn">Clear All</button>
+  <button id="resetBtn">Reset Cover</button>
+</div>
+
+<script>
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+  const clearBtn = document.getElementById('clearBtn');
+  const resetBtn = document.getElementById('resetBtn');
+  const tools = document.querySelectorAll('.tool');
+
+  let width = canvas.width = window.innerWidth;
+  let height = canvas.height = window.innerHeight;
+
+  let draggingTool = null;
+
+  const hiddenImage = new Image();
+  hiddenImage.src = 'https://placekitten.com/1024/768';
+
+  const coverTexture = new Image();
+  coverTexture.src = 'https://i.imgur.com/Z9aQq0c.jpg';
+
+  hiddenImage.onload = () => {
+    coverTexture.onload = () => {
+      drawCover();
+    };
+  };
+
+  function drawCover() {
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.drawImage(hiddenImage, 0, 0, width, height);
+    ctx.drawImage(coverTexture, 0, 0, width, height);
+  }
+
+  function scratch(x, y) {
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.beginPath();
+    ctx.arc(x, y, 30, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  tools.forEach(tool => {
+    tool.addEventListener('mousedown', () => {
+      draggingTool = tool;
+      tool.classList.add('dragging');
+    });
+  });
+
+  document.addEventListener('mouseup', () => {
+    if (draggingTool) {
+      draggingTool.classList.remove('dragging');
+    }
+    draggingTool = null;
+  });
+
+  document.addEventListener('mousemove', (e) => {
+    if (draggingTool) {
+      const toolX = e.clientX - draggingTool.width / 2;
+      const toolY = e.clientY - draggingTool.height / 2;
+      draggingTool.style.left = `${toolX}px`;
+      draggingTool.style.top = `${toolY}px`;
+      scratch(e.clientX, e.clientY);
+    }
+  });
+
+  clearBtn.addEventListener('click', () => {
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.fillRect(0, 0, width, height);
+  });
+
+  resetBtn.addEventListener('click', () => {
+    drawCover();
+  });
+
+  window.addEventListener('resize', () => {
+    width = canvas.width = window.innerWidth;
+    height = canvas.height = window.innerHeight;
+    drawCover();
+  });
+</script>
+
+</body>
+</html>
