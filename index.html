@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Mouse Reveal Effect</title>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    .container {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      background-color: black;
+    }
+
+    .hidden-content {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: url('https://placekitten.com/800/600') center/cover no-repeat;
+      mask-image: radial-gradient(circle 100px at -200px -200px, white 0%, transparent 100%);
+      -webkit-mask-image: radial-gradient(circle 100px at -200px -200px, white 0%, transparent 100%);
+      transition: mask-image 0.1s, -webkit-mask-image 0.1s;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="hidden-content" id="revealer"></div>
+  </div>
+
+  <script>
+    const revealer = document.getElementById('revealer');
+
+    document.addEventListener('mousemove', (e) => {
+      const x = e.clientX;
+      const y = e.clientY;
+      const maskStyle = `radial-gradient(circle 100px at ${x}px ${y}px, white 0%, transparent 100%)`;
+
+      revealer.style.maskImage = maskStyle;
+      revealer.style.webkitMaskImage = maskStyle;
+    });
+  </script>
+</body>
+</html>
